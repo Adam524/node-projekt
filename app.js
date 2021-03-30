@@ -1,13 +1,26 @@
 var createError = require('http-errors');
+var cookieSession = require('cookie-session');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const mongoose = require('mongoose');
+var config = require('./config');
+var News = require('./models/news');
+
+mongoose.connect(config.db, {
+  useNewUrlParser: true,
+});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {});
 
 var indexRouter = require('./routes/index');
 var newsRouter = require('./routes/news');
 var quizRouter = require('./routes/quiz');
 var adminRouter = require('./routes/admin');
+var loginRouter = require('./routes/login');
 
 var app = express();
 
@@ -21,6 +34,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: config.keySesion,
+    maxAge: config.maxAgeSesion,
+  })
+);
+
 app.use(function (req, res, next) {
   res.locals.path = req.path;
   next();
@@ -30,6 +51,7 @@ app.use('/', indexRouter);
 app.use('/news', newsRouter);
 app.use('/quiz', quizRouter);
 app.use('/admin', adminRouter);
+//app.use('/login', loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  h1= title
+  nav 
+    ul 
+      li 
+        a(href="/admin/news/add") Dodaj Artykul
+  if data.length > 0      
+   table 
+    tr 
+      th id 
+      th tytul 
+      th data dodania
+      th akcja 
+      each item, index in data 
+       tr 
+        td= index 
+        td= item.title 
+        td= item.date
+        td
+          a(href=`/admin/news/delete/${item._id}`) Usun
+  else 
+    p Brak Artykulow
